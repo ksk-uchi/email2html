@@ -7,6 +7,7 @@ import email
 import os
 from lxml import html
 
+
 @click.group()
 def creator_grp():
     '''e-mail を HTML に変換するコマンド集'''
@@ -79,8 +80,16 @@ def attachImagesOntoMessage(plain_message, images):
     return plain_message
 
 
+def file_validation(file_path):
+    '''ファイルのバリデーション'''
+    if not os.path.exists(file_path):
+        raise click.ClickException(f'The file({file_path}) does not exists')
+
+
 def email2html(file_path):
     '''メールファイルのパスを受け取って、plain/text と plain/html を HTML 形式にして返す'''
+    file_validation(file_path)
+
     with open(file_path, 'rb') as fp:
         em = email.message_from_bytes(fp.read())
 
@@ -119,13 +128,14 @@ def convert(file_path, **kwargs):
     '''渡されたメールソースを html に変換する'''
     message = email2html(file_path)
     click.echo(f'[Info] {message}')
-    click.echo('[Info] Success!')
+    click.echo('[Info] Done!')
 
 
 @creator_grp.command()
 @click.option('--original-dir', required=True, default=r'./original_files', help='メールファイルが入っているフォルダのパス')
 @click.option('--output-dir', required=True, default=r'./output', help='HTML 変換後のファイルが入るフォルダのパス')
 def bulkConvert(original_dir, output_dir, **kwargs):
+    '''original-dir 内にあるメールファイルを html 変換し output-dir 内に格納する'''
     files = os.listdir(original_dir)
     for file_name in files:
         if file_name == '.gitkeep':
@@ -140,6 +150,8 @@ def bulkConvert(original_dir, output_dir, **kwargs):
             output_path = os.path.join(output_dir, file_name + '.html.html')
             with open(output_path, 'w') as fp:
                 fp.write(message['html'])
+
+    click.echo(f'[Info] Done!')
 
 def main():
     creator_grp()
