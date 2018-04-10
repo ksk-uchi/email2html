@@ -1,0 +1,4 @@
+src/original_files/*
+src/output/*
+
+!.gitkeep

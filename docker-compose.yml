@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+    python:
+        build:
+            context: .
+        volumes:
+            - ./src:/var/app
